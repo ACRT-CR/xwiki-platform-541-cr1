@@ -22,13 +22,13 @@ package org.xwiki.platform.security.requiredrights.internal;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.localization.ContextualLocalizationManager;
 import org.xwiki.localization.Translation;
 import org.xwiki.rendering.block.Block;
-import org.xwiki.rendering.block.WordBlock;
 
 /**
  * Provides a way to easily construct a supplier using a translation message.
@@ -36,18 +36,15 @@ import org.xwiki.rendering.block.WordBlock;
  * @version $Id$
  * @since 15.9RC1
  */
-@Component(roles = TranslationMessageSupplierProvider.class)
+@Component
 @Singleton
-public class TranslationMessageSupplierProvider
+@Named("translation")
+public class TranslationMessageSupplierProvider extends AbstractBlockSupplierProvider<String>
 {
     @Inject
     private ContextualLocalizationManager contextualLocalizationManager;
 
-    /**
-     * @param translationMessage the translation message
-     * @param parameters the parameters to pass to the translation message
-     * @return a supplier that returns the translation message
-     */
+    @Override
     public Supplier<Block> get(String translationMessage, Object... parameters)
     {
         return () -> {
@@ -55,8 +52,7 @@ public class TranslationMessageSupplierProvider
             if (translation != null) {
                 return translation.render(parameters);
             } else {
-                // TODO: provide a better error block.
-                return new WordBlock(translationMessage);
+                return getStringBlock(translationMessage);
             }
         };
     }
